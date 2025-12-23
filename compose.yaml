@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:17
+    container_name: chicken_db_container
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: chicken-managerment  # Nhớ để tên này khớp với hình pgAdmin của bạn
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 123456
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    restart: always
+
+volumes:
+  db_data:

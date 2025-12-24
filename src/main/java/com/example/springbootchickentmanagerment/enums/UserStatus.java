@@ -2,5 +2,6 @@ package com.example.springbootchickentmanagerment.enums;
 
 public enum UserStatus {
     ACTIVE,
-    INACTIVE
+    INACTIVE,
+    PENDING_VERIFICATION
 }

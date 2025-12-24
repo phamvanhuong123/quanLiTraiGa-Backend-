@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Data
@@ -38,6 +39,9 @@ public class InventoryBatch {
 
     @Column(name = "quantity_remaining", nullable = false)
     private Double quantityRemaining;
+
+    @Column(name = "price_per_unit", nullable = false)
+    private BigDecimal pricePerUnit;
 
     @Column(name = "import_date")
     private LocalDate importDate;

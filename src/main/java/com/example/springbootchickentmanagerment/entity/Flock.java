@@ -52,6 +52,10 @@ public class Flock {
     @Column(name = "status", length = 20)
     private FlockStatus status;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "created_by")
+    private User createdBy;
+
     @OneToMany(mappedBy = "flock", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<DailyLog> dailyLogs;
 

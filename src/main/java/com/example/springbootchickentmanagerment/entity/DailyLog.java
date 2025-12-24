@@ -41,7 +41,6 @@ public class DailyLog {
     private String notes;
 
     @Column(name = "created_at", updatable = false)
-    @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)

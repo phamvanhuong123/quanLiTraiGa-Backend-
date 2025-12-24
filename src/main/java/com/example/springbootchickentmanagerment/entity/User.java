@@ -49,7 +49,7 @@ public class User {
     protected void onCreate() {
         createdAt = LocalDateTime.now();
         if (status == null) {
-            status = UserStatus.ACTIVE;
+            status = UserStatus.PENDING_VERIFICATION; // Changed from ACTIVE
         }
         if (role == null) {
             role = Role.STAFF;

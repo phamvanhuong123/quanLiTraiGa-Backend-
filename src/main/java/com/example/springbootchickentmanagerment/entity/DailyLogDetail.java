@@ -22,9 +22,9 @@ public class DailyLogDetail {
     private DailyLog dailyLog;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "material_id", nullable = false)
-    private Material material;
+    @JoinColumn(name = "inventory_batch_id", nullable = false)
+    private InventoryBatch inventoryBatch;
 
-    @Column(name = "quantity", nullable = false)
-    private Double quantity;
+    @Column(name = "quantity_used", nullable = false)
+    private Double quantityUsed;
 }

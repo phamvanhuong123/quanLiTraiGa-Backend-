@@ -34,6 +34,7 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<AuthResponse>> authenticateUser(@RequestBody LoginRequest loginRequest) {
         String token = authService.login(loginRequest);
+
         AuthResponse authResponse = new AuthResponse(token);
         ApiResponse<AuthResponse> response = ApiResponse.<AuthResponse>builder()
                 .statusCode(HttpStatus.OK.value())

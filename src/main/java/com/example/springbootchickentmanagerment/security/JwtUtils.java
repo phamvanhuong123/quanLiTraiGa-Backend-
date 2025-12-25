@@ -1,5 +1,6 @@
 package com.example.springbootchickentmanagerment.security;
 
+import com.example.springbootchickentmanagerment.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -20,18 +21,25 @@ public class JwtUtils {
 
     @Value("${jwt.secret}")
     private String secret;
-    
+
     private static final long EXPIRATION_TIME = 86400000; // 1 day
 
-    public String generateToken(String userName) {
+    // Overloaded method to accept a User object
+    public String generateToken(User user) {
         Map<String, Object> claims = new HashMap<>();
-        return createToken(claims, userName);
+        claims.put("id", user.getId());
+        claims.put("fullName", user.getFullName());
+        claims.put("username", user.getUsername());
+        claims.put("role", user.getRole().name()); // Convert enum to string
+        // Add any other non-sensitive fields you need
+
+        return createToken(claims, user.getEmail()); // Use email as the subject
     }
 
-    private String createToken(Map<String, Object> claims, String userName) {
+    private String createToken(Map<String, Object> claims, String subject) {
         return Jwts.builder()
                 .setClaims(claims)
-                .setSubject(userName)
+                .setSubject(subject)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .signWith(getSignKey(), SignatureAlgorithm.HS256).compact();
@@ -69,7 +77,7 @@ public class JwtUtils {
     }
 
     public Boolean validateToken(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
+        final String username = extractUsername(token); // This is email
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
     }
 }

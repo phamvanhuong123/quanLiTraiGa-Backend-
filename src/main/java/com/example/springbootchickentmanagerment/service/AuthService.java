@@ -1,13 +1,13 @@
 package com.example.springbootchickentmanagerment.service;
 
+import com.example.springbootchickentmanagerment.dto.auth.LoginRequest;
 import com.example.springbootchickentmanagerment.dto.auth.OtpVerificationRequest;
+import com.example.springbootchickentmanagerment.dto.auth.RegisterRequest;
 import com.example.springbootchickentmanagerment.entity.User;
 import com.example.springbootchickentmanagerment.entity.VerificationToken;
 import com.example.springbootchickentmanagerment.enums.Role;
 import com.example.springbootchickentmanagerment.enums.UserStatus;
 import com.example.springbootchickentmanagerment.exception.CustomException;
-import com.example.springbootchickentmanagerment.dto.auth.LoginRequest;
-import com.example.springbootchickentmanagerment.dto.auth.RegisterRequest;
 import com.example.springbootchickentmanagerment.repository.UserRepository;
 import com.example.springbootchickentmanagerment.repository.VerificationTokenRepository;
 import com.example.springbootchickentmanagerment.security.JwtUtils;
@@ -24,7 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.SecureRandom;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Optional;
 
 @Service
 public class AuthService {
@@ -62,7 +61,7 @@ public class AuthService {
 
         String otp = generateOtp();
         VerificationToken verificationToken = new VerificationToken(otp, savedUser);
-        verificationToken.setExpiryDate(Instant.now().plus(10, ChronoUnit.MINUTES)); // OTP expires in 10 minutes
+        verificationToken.setExpiryDate(Instant.now().plus(10, ChronoUnit.MINUTES));
         tokenRepository.save(verificationToken);
 
         emailService.sendOtpEmail(savedUser.getEmail(), otp);
@@ -71,22 +70,21 @@ public class AuthService {
     public String login(LoginRequest loginRequest) {
         try {
             Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+                    new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
 
-            User user = userRepository.findByUsername(loginRequest.getUsername())
-                    .orElseThrow(() -> new CustomException(HttpStatus.UNAUTHORIZED, "Invalid username or password"));
+            User user = userRepository.findByEmail(loginRequest.getEmail())
+                    .orElseThrow(() -> new CustomException(HttpStatus.UNAUTHORIZED, "Invalid email or password"));
 
             if (user.getStatus() != UserStatus.ACTIVE) {
                 throw new CustomException(HttpStatus.FORBIDDEN, "Account is not activated. Please check your email for verification code.");
             }
 
-            if (authentication.isAuthenticated()) {
-                return jwtUtils.generateToken(loginRequest.getUsername());
-            }
+            // Corrected: Pass the whole user object to generate a token with full claims
+            return jwtUtils.generateToken(user);
+
         } catch (AuthenticationException e) {
-            throw new CustomException(HttpStatus.UNAUTHORIZED, "Invalid username or password");
+            throw new CustomException(HttpStatus.UNAUTHORIZED, "Invalid email or password");
         }
-        throw new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred during login");
     }
 
     @Transactional
@@ -109,11 +107,10 @@ public class AuthService {
         user.setStatus(UserStatus.ACTIVE);
         userRepository.save(user);
 
-        tokenRepository.delete(verificationToken); // Clean up the token
+        tokenRepository.delete(verificationToken);
     }
 
     private String generateOtp() {
-        // Generate a 6-digit OTP
         SecureRandom random = new SecureRandom();
         int num = random.nextInt(1000000);
         return String.format("%06d", num);

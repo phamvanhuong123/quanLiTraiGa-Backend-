@@ -1,11 +1,12 @@
 package com.example.springbootchickentmanagerment.dto.inventory;
 
 import com.example.springbootchickentmanagerment.enums.MaterialType;
-
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+
+import java.time.LocalDateTime;
 
 @Data
 public class MaterialDTO {
@@ -18,6 +19,10 @@ public class MaterialDTO {
     @NotBlank(message = "Đơn vị không được để trống")
     private String unit;
 
-    @NotNull(message = "Material type cannot be null")
+    @NotNull(message = "Loại vật tư không được để trống")
     private MaterialType type;
+
+    // Add the new fields
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

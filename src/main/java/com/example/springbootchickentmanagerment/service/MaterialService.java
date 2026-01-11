@@ -5,6 +5,7 @@ import com.example.springbootchickentmanagerment.entity.Material;
 import com.example.springbootchickentmanagerment.exception.CustomException;
 import com.example.springbootchickentmanagerment.repository.MaterialRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +25,7 @@ public class MaterialService {
     }
 
     public List<MaterialDTO> getAllMaterials() {
-        return materialRepository.findAll().stream()
+        return materialRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt")).stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
     }
@@ -41,7 +42,7 @@ public class MaterialService {
 
         existingMaterial.setName(materialDTO.getName());
         existingMaterial.setUnit(materialDTO.getUnit());
-        existingMaterial.setType(materialDTO.getType()); // No conversion needed
+        existingMaterial.setType(materialDTO.getType());
 
         Material updatedMaterial = materialRepository.save(existingMaterial);
         return mapToDTO(updatedMaterial);
@@ -58,7 +59,7 @@ public class MaterialService {
         return Material.builder()
                 .name(dto.getName())
                 .unit(dto.getUnit())
-                .type(dto.getType()) // No conversion needed
+                .type(dto.getType())
                 .build();
     }
 
@@ -68,6 +69,9 @@ public class MaterialService {
         dto.setName(entity.getName());
         dto.setUnit(entity.getUnit());
         dto.setType(entity.getType());
+
+        dto.setCreatedAt(entity.getCreatedAt());
+        dto.setUpdatedAt(entity.getUpdatedAt());
         return dto;
     }
 }

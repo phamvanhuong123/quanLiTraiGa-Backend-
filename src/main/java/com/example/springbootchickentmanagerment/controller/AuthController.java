@@ -17,11 +17,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
-
+    //localhost:8080/api/auth
     @Autowired
     private AuthService authService;
-
+    //localhost:8080/api/auth/register
     @PostMapping("/register")
+
     public ResponseEntity<ApiResponse<Void>> registerUser(@RequestBody RegisterRequest registerRequest) {
         authService.register(registerRequest);
         ApiResponse<Void> response = ApiResponse.<Void>builder()

@@ -10,12 +10,13 @@ import java.util.Collections;
 
 public class UserInfoDetails implements UserDetails {
 
-    private final String username;
+
+    private final String email;
     private final String password;
     private final GrantedAuthority authority;
 
     public UserInfoDetails(User user) {
-        username = user.getUsername();
+        email = user.getEmail();
         password = user.getPassword();
         authority = new SimpleGrantedAuthority(user.getRole().name());
     }
@@ -32,7 +33,8 @@ public class UserInfoDetails implements UserDetails {
 
     @Override
     public String getUsername() {
-        return username;
+
+        return email;
     }
 
     @Override

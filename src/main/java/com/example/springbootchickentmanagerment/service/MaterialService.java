@@ -41,7 +41,7 @@ public class MaterialService {
 
         existingMaterial.setName(materialDTO.getName());
         existingMaterial.setUnit(materialDTO.getUnit());
-        existingMaterial.setType(materialDTO.getType());
+        existingMaterial.setType(materialDTO.getType()); // No conversion needed
 
         Material updatedMaterial = materialRepository.save(existingMaterial);
         return mapToDTO(updatedMaterial);
@@ -51,7 +51,6 @@ public class MaterialService {
         if (!materialRepository.existsById(id)) {
             throw new CustomException(HttpStatus.NOT_FOUND, "Material not found with id: " + id);
         }
-        // Consider adding logic here to check if the material is in use before deleting
         materialRepository.deleteById(id);
     }
 
@@ -59,7 +58,7 @@ public class MaterialService {
         return Material.builder()
                 .name(dto.getName())
                 .unit(dto.getUnit())
-                .type(dto.getType())
+                .type(dto.getType()) // No conversion needed
                 .build();
     }
 

@@ -1,5 +1,7 @@
 package com.example.springbootchickentmanagerment.config;
 
+import com.example.springbootchickentmanagerment.exception.CustomAccessDeniedHandler;
+import com.example.springbootchickentmanagerment.exception.CustomAuthenticationEntryPoint;
 import com.example.springbootchickentmanagerment.security.JwtAuthFilter;
 import com.example.springbootchickentmanagerment.security.UserInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +37,12 @@ public class SecurityConfig {
     @Autowired
     private JwtAuthFilter authFilter;
 
+    @Autowired
+    private CustomAccessDeniedHandler accessDeniedHandler;
+
+    @Autowired
+    private CustomAuthenticationEntryPoint authenticationEntryPoint; // Inject the new handler
+
     @Bean
     public UserDetailsService userDetailsService() {
         return new UserInfoService();
@@ -51,6 +59,10 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(exceptions -> exceptions
+                        .authenticationEntryPoint(authenticationEntryPoint) // Handle 401 Unauthorized
+                        .accessDeniedHandler(accessDeniedHandler)       // Handle 403 Forbidden
+                )
                 .build();
     }
 

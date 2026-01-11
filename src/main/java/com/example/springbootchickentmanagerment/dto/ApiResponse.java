@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL) // Bỏ qua các trường null trong JSON output
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ApiResponse<T> {
     private int statusCode;
     private String message;

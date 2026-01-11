@@ -3,6 +3,7 @@ package com.example.springbootchickentmanagerment.controller;
 import com.example.springbootchickentmanagerment.dto.ApiResponse;
 import com.example.springbootchickentmanagerment.dto.inventory.MaterialDTO;
 import com.example.springbootchickentmanagerment.service.MaterialService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,7 @@ public class MaterialController {
     private MaterialService materialService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<MaterialDTO>> createMaterial(@RequestBody MaterialDTO materialDTO) {
+    public ResponseEntity<ApiResponse<MaterialDTO>> createMaterial(@Valid @RequestBody MaterialDTO materialDTO) {
         MaterialDTO createdMaterial = materialService.createMaterial(materialDTO);
         ApiResponse<MaterialDTO> response = ApiResponse.<MaterialDTO>builder()
                 .statusCode(HttpStatus.CREATED.value())
@@ -51,7 +52,7 @@ public class MaterialController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<MaterialDTO>> updateMaterial(@PathVariable Long id, @RequestBody MaterialDTO materialDTO) {
+    public ResponseEntity<ApiResponse<MaterialDTO>> updateMaterial(@PathVariable Long id, @Valid @RequestBody MaterialDTO materialDTO) {
         MaterialDTO updatedMaterial = materialService.updateMaterial(id, materialDTO);
         ApiResponse<MaterialDTO> response = ApiResponse.<MaterialDTO>builder()
                 .statusCode(HttpStatus.OK.value())

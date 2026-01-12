@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import com.example.springbootchickentmanagerment.dto.coop.CoopDTO; // Corrected import
 import com.example.springbootchickentmanagerment.entity.Coop;
+import com.example.springbootchickentmanagerment.enums.CoopStatus;
 import com.example.springbootchickentmanagerment.exception.CustomException;
 import com.example.springbootchickentmanagerment.repository.CoopRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,7 +82,7 @@ public class CoopService {
 
         existingCoop.setName(coopDTO.getName());
         existingCoop.setCapacity(coopDTO.getCapacity());
-        //existingCoop.setStatus(coopDTO.getStatus());
+        existingCoop.setStatus(coopDTO.getStatus());
 
         Coop updatedCoop = coopRepository.save(existingCoop);
         return mapToDTO(updatedCoop);
@@ -110,7 +111,7 @@ public class CoopService {
                 .id(entity.getId())
                 .name(entity.getName())
                 .capacity(entity.getCapacity())
-                .status(entity.getStatus().name())
+                .status(entity.getStatus())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .build();

@@ -120,6 +120,7 @@ public class FlockService {
 
                 // 7. Tự động tạo lịch trình
                 createInitialSchedules(savedFlock, dto.getImportDate());
+
         }
 
         @Transactional

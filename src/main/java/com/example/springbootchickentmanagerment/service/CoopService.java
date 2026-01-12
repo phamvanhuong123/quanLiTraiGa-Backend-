@@ -1,5 +1,14 @@
 package com.example.springbootchickentmanagerment.service;
 
+/*
+import com.example.springbootchickentmanagerment.dto.inventory.CoopDTO;
+import com.example.springbootchickentmanagerment.entity.Coop;
+import com.example.springbootchickentmanagerment.enums.CoopStatus;
+import com.example.springbootchickentmanagerment.repository.CoopRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+*/
+
+
 import com.example.springbootchickentmanagerment.dto.coop.CoopDTO; // Corrected import
 import com.example.springbootchickentmanagerment.entity.Coop;
 import com.example.springbootchickentmanagerment.exception.CustomException;
@@ -20,6 +29,7 @@ public class CoopService {
 
     public CoopDTO createCoop(CoopDTO coopDTO) {
         Coop coop = mapToEntity(coopDTO);
+        coop.setStatus(CoopStatus.EMPTY);
         Coop savedCoop = coopRepository.save(coop);
         return mapToDTO(savedCoop);
     }
@@ -30,11 +40,40 @@ public class CoopService {
                 .collect(Collectors.toList());
     }
 
+    /*
+    public CoopDTO getCoopById(Long id) {
+        Coop coop = coopRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Coop not found with id: " + id));
+        return mapToDTO(coop);
+    }
+    */
+    
     public CoopDTO getCoopById(Long id) {
         Coop coop = coopRepository.findById(id)
                 .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "Không tìm thấy chuồng với id: " + id));
         return mapToDTO(coop);
     }
+  
+    public List<CoopDTO> getEmptyCoops() {
+        return coopRepository.findByStatus(CoopStatus.EMPTY).stream()
+                .map(this::mapToDTO)
+                .collect(Collectors.toList());
+    }
+
+   /*
+    public CoopDTO updateCoop(Long id, CoopDTO coopDTO) {
+        Coop coop = coopRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Coop not found with id: " + id));
+        
+        coop.setName(coopDTO.getName());
+        coop.setCapacity(coopDTO.getCapacity());
+        // Status should not be updated manually
+        
+        Coop updatedCoop = coopRepository.save(coop);
+                .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "Không tìm thấy chuồng với id: " + id));
+        return mapToDTO(coop);
+    }
+   */
 
     public CoopDTO updateCoop(Long id, CoopDTO coopDTO) {
         Coop existingCoop = coopRepository.findById(id)
@@ -42,7 +81,7 @@ public class CoopService {
 
         existingCoop.setName(coopDTO.getName());
         existingCoop.setCapacity(coopDTO.getCapacity());
-        existingCoop.setStatus(coopDTO.getStatus());
+        //existingCoop.setStatus(coopDTO.getStatus());
 
         Coop updatedCoop = coopRepository.save(existingCoop);
         return mapToDTO(updatedCoop);
@@ -51,7 +90,6 @@ public class CoopService {
     public void deleteCoop(Long id) {
         Coop coop = coopRepository.findById(id)
                 .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "Không tìm thấy chuồng với id: " + id));
-
         if (coop.getStatus() != com.example.springbootchickentmanagerment.enums.CoopStatus.EMPTY) {
             throw new CustomException(HttpStatus.BAD_REQUEST, "Không thể xóa chuồng đang có gà hoặc chưa được dọn dẹp.");
         }
@@ -68,13 +106,13 @@ public class CoopService {
     }
 
     private CoopDTO mapToDTO(Coop entity) {
-        CoopDTO dto = new CoopDTO();
-        dto.setId(entity.getId());
-        dto.setName(entity.getName());
-        dto.setCapacity(entity.getCapacity());
-        dto.setStatus(entity.getStatus());
-        dto.setCreatedAt(entity.getCreatedAt());
-        dto.setUpdatedAt(entity.getUpdatedAt());
-        return dto;
+        return CoopDTO.builder()
+                .id(entity.getId())
+                .name(entity.getName())
+                .capacity(entity.getCapacity())
+                .status(entity.getStatus().name())
+                .createdAt(entity.getCreatedAt())
+                .updatedAt(entity.getUpdatedAt())
+                .build();
     }
 }

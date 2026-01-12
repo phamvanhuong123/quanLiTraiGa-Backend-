@@ -38,7 +38,7 @@ public class MaterialService {
 
     public MaterialDTO updateMaterial(Long id, MaterialDTO materialDTO) {
         Material existingMaterial = materialRepository.findById(id)
-                .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "Material not found with id: " + id));
+                .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "Không tìm thấy vật tư " + id));
 
         existingMaterial.setName(materialDTO.getName());
         existingMaterial.setUnit(materialDTO.getUnit());

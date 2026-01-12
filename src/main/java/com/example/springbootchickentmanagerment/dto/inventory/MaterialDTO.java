@@ -22,7 +22,7 @@ public class MaterialDTO {
     @NotNull(message = "Loại vật tư không được để trống")
     private MaterialType type;
 
-    // Add the new fields
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

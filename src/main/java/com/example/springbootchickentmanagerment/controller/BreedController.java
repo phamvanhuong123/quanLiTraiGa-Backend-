@@ -1,7 +1,7 @@
 package com.example.springbootchickentmanagerment.controller;
 
 import com.example.springbootchickentmanagerment.dto.ApiResponse;
-import com.example.springbootchickentmanagerment.dto.inventory.*;
+import com.example.springbootchickentmanagerment.dto.breed.BreedDTO;
 import com.example.springbootchickentmanagerment.service.BreedService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +23,7 @@ public class BreedController {
         BreedDTO createdBreed = breedService.createBreed(breedDTO);
         ApiResponse<BreedDTO> response = ApiResponse.<BreedDTO>builder()
                 .statusCode(HttpStatus.CREATED.value())
-                .message("Breed created successfully")
+                .message("Tạo giống gà thành công")
                 .data(createdBreed)
                 .build();
         return new ResponseEntity<>(response, HttpStatus.CREATED);
@@ -34,7 +34,7 @@ public class BreedController {
         List<BreedDTO> breeds = breedService.getAllBreeds();
         ApiResponse<List<BreedDTO>> response = ApiResponse.<List<BreedDTO>>builder()
                 .statusCode(HttpStatus.OK.value())
-                .message("Breeds retrieved successfully")
+                .message("Lấy danh sách giống gà thành công")
                 .data(breeds)
                 .build();
         return ResponseEntity.ok(response);
@@ -45,7 +45,7 @@ public class BreedController {
         BreedDTO breed = breedService.getBreedById(id);
         ApiResponse<BreedDTO> response = ApiResponse.<BreedDTO>builder()
                 .statusCode(HttpStatus.OK.value())
-                .message("Breed retrieved successfully")
+                .message("Lấy thông tin chi tiết giống gà thành công")
                 .data(breed)
                 .build();
         return ResponseEntity.ok(response);
@@ -56,7 +56,7 @@ public class BreedController {
         BreedDTO updatedBreed = breedService.updateBreed(id, breedDTO);
         ApiResponse<BreedDTO> response = ApiResponse.<BreedDTO>builder()
                 .statusCode(HttpStatus.OK.value())
-                .message("Breed updated successfully")
+                .message("Cập nhật giống gà thành công")
                 .data(updatedBreed)
                 .build();
         return ResponseEntity.ok(response);
@@ -67,7 +67,7 @@ public class BreedController {
         breedService.deleteBreed(id);
         ApiResponse<Void> response = ApiResponse.<Void>builder()
                 .statusCode(HttpStatus.OK.value())
-                .message("Breed deleted successfully")
+                .message("Xóa giống gà thành công")
                 .build();
         return ResponseEntity.ok(response);
     }

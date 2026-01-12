@@ -1,9 +1,21 @@
 package com.example.springbootchickentmanagerment.service;
 
+/*
 import com.example.springbootchickentmanagerment.dto.inventory.BreedDTO;
 import com.example.springbootchickentmanagerment.entity.Breed;
 import com.example.springbootchickentmanagerment.repository.BreedRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+
+*/
+
+
+import com.example.springbootchickentmanagerment.dto.breed.BreedDTO;
+import com.example.springbootchickentmanagerment.entity.Breed;
+import com.example.springbootchickentmanagerment.exception.CustomException;
+import com.example.springbootchickentmanagerment.repository.BreedRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,33 +34,35 @@ public class BreedService {
     }
 
     public List<BreedDTO> getAllBreeds() {
-        return breedRepository.findAll().stream()
+        return breedRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt")).stream()
                 .map(this::mapToDTO)
                 .collect(Collectors.toList());
     }
 
     public BreedDTO getBreedById(Long id) {
         Breed breed = breedRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Breed not found with id: " + id));
+                .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "Không tìm thấy giống gà với id: " + id));
         return mapToDTO(breed);
     }
 
     public BreedDTO updateBreed(Long id, BreedDTO breedDTO) {
-        Breed breed = breedRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Breed not found with id: " + id));
-        
-        breed.setName(breedDTO.getName());
-        breed.setTargetWeight(breedDTO.getTargetWeight());
-        breed.setMaturityDays(breedDTO.getMaturityDays());
-        
-        Breed updatedBreed = breedRepository.save(breed);
+        Breed existingBreed = breedRepository.findById(id)
+                .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "Không tìm thấy giống gà với id: " + id));
+
+        existingBreed.setName(breedDTO.getName());
+        existingBreed.setTargetWeight(breedDTO.getTargetWeight());
+        existingBreed.setMaturityDays(breedDTO.getMaturityDays());
+
+        Breed updatedBreed = breedRepository.save(existingBreed);
         return mapToDTO(updatedBreed);
     }
 
     public void deleteBreed(Long id) {
-        Breed breed = breedRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Breed not found with id: " + id));
-        breedRepository.delete(breed);
+        if (!breedRepository.existsById(id)) {
+            throw new CustomException(HttpStatus.NOT_FOUND, "Không tìm thấy giống gà với id: " + id);
+        }
+        // Consider adding logic to check if the breed is in use before deleting
+        breedRepository.deleteById(id);
     }
 
     private Breed mapToEntity(BreedDTO dto) {
@@ -60,11 +74,13 @@ public class BreedService {
     }
 
     private BreedDTO mapToDTO(Breed entity) {
-        return BreedDTO.builder()
-                .id(entity.getId())
-                .name(entity.getName())
-                .targetWeight(entity.getTargetWeight())
-                .maturityDays(entity.getMaturityDays())
-                .build();
+        BreedDTO dto = new BreedDTO();
+        dto.setId(entity.getId());
+        dto.setName(entity.getName());
+        dto.setTargetWeight(entity.getTargetWeight());
+        dto.setMaturityDays(entity.getMaturityDays());
+        dto.setCreatedAt(entity.getCreatedAt());
+        dto.setUpdatedAt(entity.getUpdatedAt());
+        return dto;
     }
 }

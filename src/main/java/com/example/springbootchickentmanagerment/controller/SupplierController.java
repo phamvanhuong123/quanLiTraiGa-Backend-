@@ -1,7 +1,7 @@
 package com.example.springbootchickentmanagerment.controller;
 
 import com.example.springbootchickentmanagerment.dto.ApiResponse;
-import com.example.springbootchickentmanagerment.entity.Supplier;
+import com.example.springbootchickentmanagerment.dto.supplier.SupplierDTO;
 import com.example.springbootchickentmanagerment.service.SupplierService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,60 +14,64 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/suppliers")
 public class SupplierController {
-
     @Autowired
     private SupplierService supplierService;
 
-    @PostMapping
-    public ResponseEntity<ApiResponse<Supplier>> createSupplier(@Valid @RequestBody Supplier supplier) {
-        Supplier createdSupplier = supplierService.createSupplier(supplier);
-        ApiResponse<Supplier> response = ApiResponse.<Supplier>builder()
-                .statusCode(HttpStatus.CREATED.value())
-                .message("Supplier created successfully")
-                .data(createdSupplier)
-                .build();
-        return new ResponseEntity<>(response, HttpStatus.CREATED);
-    }
-
+    // Lấy danh sách
     @GetMapping
-    public ResponseEntity<ApiResponse<List<Supplier>>> getAllSuppliers() {
-        List<Supplier> suppliers = supplierService.getAllSuppliers();
-        ApiResponse<List<Supplier>> response = ApiResponse.<List<Supplier>>builder()
+    public ResponseEntity<ApiResponse<List<SupplierDTO>>> getAllSuppliers() {
+        List<SupplierDTO> suppliers = supplierService.getAllSupplier();
+        ApiResponse<List<SupplierDTO>> response = ApiResponse.<List<SupplierDTO>>builder()
                 .statusCode(HttpStatus.OK.value())
-                .message("Suppliers retrieved successfully")
+                .message("Lấy thông tin thành công")
                 .data(suppliers)
                 .build();
         return ResponseEntity.ok(response);
     }
 
+    // Lấy thông tin chi tiết 1 nhà cung cấp
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<Supplier>> getSupplierById(@PathVariable Long id) {
-        Supplier supplier = supplierService.getSupplierById(id);
-        ApiResponse<Supplier> response = ApiResponse.<Supplier>builder()
+    public ResponseEntity<ApiResponse<SupplierDTO>> getSupplierById(@PathVariable Long id) {
+        SupplierDTO supplier = supplierService.getSupplierById(id);
+        ApiResponse<SupplierDTO> response = ApiResponse.<SupplierDTO>builder()
                 .statusCode(HttpStatus.OK.value())
-                .message("Supplier retrieved successfully")
+                .message("Lấy thông tin chi tiết thành công")
                 .data(supplier)
                 .build();
         return ResponseEntity.ok(response);
     }
 
+    // Tạo thông tin nhà cung cấp
+    @PostMapping
+    public ResponseEntity<ApiResponse<SupplierDTO>> createSupplier(@Valid @RequestBody SupplierDTO supplierDTO){
+        SupplierDTO createdSupplier = supplierService.createSupplier(supplierDTO);
+        ApiResponse<SupplierDTO> response = ApiResponse.<SupplierDTO>builder()
+                .statusCode(HttpStatus.CREATED.value())
+                .message("Thêm thành công")
+                .data(createdSupplier)
+                .build();
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
+    }
+
+    // Cập nhật thông tin nhà cung cấp
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<Supplier>> updateSupplier(@PathVariable Long id, @Valid @RequestBody Supplier supplier) {
-        Supplier updatedSupplier = supplierService.updateSupplier(id, supplier);
-        ApiResponse<Supplier> response = ApiResponse.<Supplier>builder()
+    public ResponseEntity<ApiResponse<SupplierDTO>> updateSupplier(@PathVariable Long id, @Valid @RequestBody SupplierDTO supplierDTO) {
+        SupplierDTO updatedSupplier = supplierService.updateSupplier(id, supplierDTO);
+        ApiResponse<SupplierDTO> response = ApiResponse.<SupplierDTO>builder()
                 .statusCode(HttpStatus.OK.value())
-                .message("Supplier updated successfully")
+                .message("Cập nhật thành công")
                 .data(updatedSupplier)
                 .build();
         return ResponseEntity.ok(response);
     }
 
+    // Xóa nhà cung cấp
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteSupplier(@PathVariable Long id) {
         supplierService.deleteSupplier(id);
         ApiResponse<Void> response = ApiResponse.<Void>builder()
                 .statusCode(HttpStatus.OK.value())
-                .message("Supplier deleted successfully")
+                .message("Xóa thành công")
                 .build();
         return ResponseEntity.ok(response);
     }

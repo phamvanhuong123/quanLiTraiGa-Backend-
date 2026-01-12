@@ -1,7 +1,7 @@
 package com.example.springbootchickentmanagerment.controller;
 
 import com.example.springbootchickentmanagerment.dto.ApiResponse;
-import com.example.springbootchickentmanagerment.dto.inventory.CoopDTO;
+import com.example.springbootchickentmanagerment.dto.coop.CoopDTO; 
 import com.example.springbootchickentmanagerment.service.CoopService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +23,7 @@ public class CoopController {
         CoopDTO createdCoop = coopService.createCoop(coopDTO);
         ApiResponse<CoopDTO> response = ApiResponse.<CoopDTO>builder()
                 .statusCode(HttpStatus.CREATED.value())
-                .message("Coop created successfully")
+                .message("Tạo chuồng thành công")
                 .data(createdCoop)
                 .build();
         return new ResponseEntity<>(response, HttpStatus.CREATED);
@@ -34,7 +34,7 @@ public class CoopController {
         List<CoopDTO> coops = coopService.getAllCoops();
         ApiResponse<List<CoopDTO>> response = ApiResponse.<List<CoopDTO>>builder()
                 .statusCode(HttpStatus.OK.value())
-                .message("Coops retrieved successfully")
+                .message("Lấy danh sách chuồng thành công")
                 .data(coops)
                 .build();
         return ResponseEntity.ok(response);
@@ -45,7 +45,7 @@ public class CoopController {
         CoopDTO coop = coopService.getCoopById(id);
         ApiResponse<CoopDTO> response = ApiResponse.<CoopDTO>builder()
                 .statusCode(HttpStatus.OK.value())
-                .message("Coop retrieved successfully")
+                .message("Lấy thông tin chi tiết chuồng thành công")
                 .data(coop)
                 .build();
         return ResponseEntity.ok(response);
@@ -67,7 +67,7 @@ public class CoopController {
         CoopDTO updatedCoop = coopService.updateCoop(id, coopDTO);
         ApiResponse<CoopDTO> response = ApiResponse.<CoopDTO>builder()
                 .statusCode(HttpStatus.OK.value())
-                .message("Coop updated successfully")
+                .message("Cập nhật chuồng thành công")
                 .data(updatedCoop)
                 .build();
         return ResponseEntity.ok(response);
@@ -78,7 +78,7 @@ public class CoopController {
         coopService.deleteCoop(id);
         ApiResponse<Void> response = ApiResponse.<Void>builder()
                 .statusCode(HttpStatus.OK.value())
-                .message("Coop deleted successfully")
+                .message("Xóa chuồng thành công")
                 .build();
         return ResponseEntity.ok(response);
     }

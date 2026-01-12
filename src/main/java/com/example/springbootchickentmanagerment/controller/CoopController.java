@@ -1,7 +1,7 @@
 package com.example.springbootchickentmanagerment.controller;
 
 import com.example.springbootchickentmanagerment.dto.ApiResponse;
-import com.example.springbootchickentmanagerment.dto.coop.CoopDTO; // Corrected import
+import com.example.springbootchickentmanagerment.dto.coop.CoopDTO; 
 import com.example.springbootchickentmanagerment.service.CoopService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +47,17 @@ public class CoopController {
                 .statusCode(HttpStatus.OK.value())
                 .message("Lấy thông tin chi tiết chuồng thành công")
                 .data(coop)
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/empty")
+    public ResponseEntity<ApiResponse<List<CoopDTO>>> getEmptyCoops() {
+        List<CoopDTO> emptyCoops = coopService.getEmptyCoops();
+        ApiResponse<List<CoopDTO>> response = ApiResponse.<List<CoopDTO>>builder()
+                .statusCode(HttpStatus.OK.value())
+                .message("Empty coops retrieved successfully")
+                .data(emptyCoops)
                 .build();
         return ResponseEntity.ok(response);
     }

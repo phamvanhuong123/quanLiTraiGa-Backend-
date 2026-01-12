@@ -1,5 +1,14 @@
 package com.example.springbootchickentmanagerment.service;
 
+/*
+import com.example.springbootchickentmanagerment.dto.inventory.BreedDTO;
+import com.example.springbootchickentmanagerment.entity.Breed;
+import com.example.springbootchickentmanagerment.repository.BreedRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+
+*/
+
+
 import com.example.springbootchickentmanagerment.dto.breed.BreedDTO;
 import com.example.springbootchickentmanagerment.entity.Breed;
 import com.example.springbootchickentmanagerment.exception.CustomException;

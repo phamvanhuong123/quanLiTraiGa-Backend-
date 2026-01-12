@@ -3,6 +3,7 @@ package com.example.springbootchickentmanagerment.controller;
 import com.example.springbootchickentmanagerment.dto.ApiResponse;
 import com.example.springbootchickentmanagerment.dto.inventory.ImportMaterialDTO;
 import com.example.springbootchickentmanagerment.dto.inventory.InventoryBatchDTO;
+import com.example.springbootchickentmanagerment.dto.inventory.MaterialStockDTO;
 import com.example.springbootchickentmanagerment.service.InventoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -35,6 +36,17 @@ public class InventoryController {
                 .statusCode(HttpStatus.OK.value())
                 .message("Expiring batches retrieved successfully")
                 .data(batches)
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/available-materials")
+    public ResponseEntity<ApiResponse<List<MaterialStockDTO>>> getAvailableMaterials() {
+        List<MaterialStockDTO> materials = inventoryService.getAvailableMaterialsWithStock();
+        ApiResponse<List<MaterialStockDTO>> response = ApiResponse.<List<MaterialStockDTO>>builder()
+                .statusCode(HttpStatus.OK.value())
+                .message("Available materials retrieved successfully")
+                .data(materials)
                 .build();
         return ResponseEntity.ok(response);
     }

@@ -52,7 +52,6 @@ public class BreedService {
         if (!breedRepository.existsById(id)) {
             throw new CustomException(HttpStatus.NOT_FOUND, "Không tìm thấy giống gà với id: " + id);
         }
-        // Consider adding logic to check if the breed is in use before deleting
         breedRepository.deleteById(id);
     }
 

@@ -56,7 +56,7 @@ public class DailyLogService {
                 .build();
         DailyLog savedDailyLog = dailyLogRepository.save(dailyLog);
 
-        // 4. Process material usage with FIFO logic
+
         if (dto.getMaterials() != null && !dto.getMaterials().isEmpty()) {
             for (MaterialUsageDTO usage : dto.getMaterials()) {
                 handleMaterialUsage(usage, savedDailyLog);

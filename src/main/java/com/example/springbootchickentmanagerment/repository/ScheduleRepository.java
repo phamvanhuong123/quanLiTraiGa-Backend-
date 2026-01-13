@@ -12,18 +12,20 @@ import java.util.List;
 
 @Repository
 public interface ScheduleRepository extends JpaRepository<Schedule, Long> {
-    
+
     List<Schedule> findByFlockId(Long flockId);
-    
+
     @Query("SELECT s FROM Schedule s WHERE s.scheduledDate <= :date AND s.status = 'PENDING'")
     List<Schedule> findPendingSchedulesUpToDate(@Param("date") LocalDate date);
-    
+
     @Query("SELECT s FROM Schedule s WHERE s.scheduledDate BETWEEN :startDate AND :endDate")
-    List<Schedule> findSchedulesBetweenDates(@Param("startDate") LocalDate startDate, 
-                                            @Param("endDate") LocalDate endDate);
-    
-    @Query("SELECT COUNT(s) FROM Schedule s WHERE s.scheduledDate <= :date AND s.status = 'PENDING'")
-    long countPendingSchedulesUpToDate(@Param("date") LocalDate date);
-    
+    List<Schedule> findSchedulesBetweenDates(@Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate);
+
     List<Schedule> findByStatus(ScheduleStatus status);
+
+    Long countByStatus(ScheduleStatus status);
+
+    @Query("SELECT COUNT(s) FROM Schedule s WHERE s.status = 'PENDING' AND s.scheduledDate <= :today")
+    Long countOverdueSchedules(@Param("today") LocalDate today);
 }

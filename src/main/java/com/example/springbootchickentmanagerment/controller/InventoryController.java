@@ -43,7 +43,15 @@ public class InventoryController {
 
         return ResponseEntity.ok(response);
     }
-
+    @DeleteMapping("{id}")
+    public ResponseEntity<ApiResponse<Void>> deleteInventory(@PathVariable Long id) {
+        inventoryService.deleteInventory(id);
+        ApiResponse<Void> response = ApiResponse.<Void>builder()
+                .statusCode(HttpStatus.OK.value())
+                .message("Xóa thành công")
+                .build();
+        return ResponseEntity.ok(response);
+    }
 
     @PostMapping("/import")
     public ResponseEntity<ApiResponse<Void>> importMaterial(@RequestBody ImportMaterialDTO dto) {

@@ -46,7 +46,14 @@ public class InventoryService {
                     .map(this::mapToDTO)
                     .collect(Collectors.toList());
         }
-
+        //Xoa danh sach
+        public void deleteInventory(Long id){
+            boolean existInventory = inventoryBatchRepository.existsById(id);
+            if(!existInventory){
+                throw new CustomException(HttpStatus.NOT_FOUND, "Không tìm thấy lô hàng");
+            }
+            inventoryBatchRepository.deleteById(id);
+        }
 
         @Transactional
         public void importMaterial(ImportMaterialDTO dto) {

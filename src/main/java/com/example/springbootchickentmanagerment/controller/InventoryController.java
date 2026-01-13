@@ -1,6 +1,7 @@
 package com.example.springbootchickentmanagerment.controller;
 
 import com.example.springbootchickentmanagerment.dto.ApiResponse;
+import com.example.springbootchickentmanagerment.dto.inventory.AvailableSupplyDTO;
 import com.example.springbootchickentmanagerment.dto.inventory.ImportMaterialDTO;
 import com.example.springbootchickentmanagerment.dto.inventory.InventoryBatchDTO;
 import com.example.springbootchickentmanagerment.dto.inventory.MaterialStockDTO;
@@ -47,6 +48,18 @@ public class InventoryController {
                 .statusCode(HttpStatus.OK.value())
                 .message("Available materials retrieved successfully")
                 .data(materials)
+                .build();
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/available-supplies")
+    public ResponseEntity<ApiResponse<List<AvailableSupplyDTO>>> getAvailableSupplies(
+            @RequestParam(required = false) String materialType) {
+        List<AvailableSupplyDTO> supplies = inventoryService.getAvailableSupplies(materialType);
+        ApiResponse<List<AvailableSupplyDTO>> response = ApiResponse.<List<AvailableSupplyDTO>>builder()
+                .statusCode(HttpStatus.OK.value())
+                .message("Đã lấy danh sách vật tư có sẵn thành công")
+                .data(supplies)
                 .build();
         return ResponseEntity.ok(response);
     }

@@ -23,5 +23,5 @@ public class DailyLogCreateDTO {
 
     private String notes;
 
-    private List<MaterialUsageDTO> materials;
+    private List<DailyLogDetailCreateDTO> details;
 }

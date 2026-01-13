@@ -1,5 +1,6 @@
 package com.example.springbootchickentmanagerment.service;
 
+import com.example.springbootchickentmanagerment.dto.inventory.AvailableSupplyDTO;
 import com.example.springbootchickentmanagerment.dto.inventory.ImportMaterialDTO;
 import com.example.springbootchickentmanagerment.dto.inventory.InventoryBatchDTO;
 import com.example.springbootchickentmanagerment.dto.inventory.MaterialStockDTO;
@@ -130,6 +131,28 @@ public class InventoryService {
                                                         .hasStock(totalStock != null && totalStock > 0)
                                                         .build();
                                 })
+                                .collect(Collectors.toList());
+        }
+
+        public List<AvailableSupplyDTO> getAvailableSupplies(String materialType) {
+                List<InventoryBatch> batches = inventoryBatchRepository.findAll().stream()
+                                .filter(batch -> batch.getQuantityRemaining() > 0)
+                                .filter(batch -> materialType == null ||
+                                                batch.getMaterial().getType().name().equals(materialType))
+                                .collect(Collectors.toList());
+
+                return batches.stream()
+                                .map(batch -> AvailableSupplyDTO.builder()
+                                                .batchId(batch.getId())
+                                                .materialId(batch.getMaterial().getId())
+                                                .materialName(batch.getMaterial().getName())
+                                                .materialType(batch.getMaterial().getType().name())
+                                                .unit(batch.getMaterial().getUnit())
+                                                .batchCode(batch.getBatchCode())
+                                                .expiryDate(batch.getExpiryDate())
+                                                .quantityRemaining(batch.getQuantityRemaining())
+                                                .pricePerUnit(batch.getPricePerUnit())
+                                                .build())
                                 .collect(Collectors.toList());
         }
 

@@ -1,8 +1,8 @@
 package com.example.springbootchickentmanagerment.service;
 
 import com.example.springbootchickentmanagerment.dto.log.DailyLogCreateDTO;
+import com.example.springbootchickentmanagerment.dto.log.DailyLogDetailCreateDTO;
 import com.example.springbootchickentmanagerment.dto.log.DailyLogResponseDTO;
-import com.example.springbootchickentmanagerment.dto.log.MaterialUsageDTO;
 import com.example.springbootchickentmanagerment.entity.*;
 import com.example.springbootchickentmanagerment.enums.FlockStatus;
 import com.example.springbootchickentmanagerment.exception.CustomException;
@@ -74,66 +74,42 @@ public class DailyLogService {
 
         DailyLog savedDailyLog = dailyLogRepository.save(dailyLog);
 
-        // 6. Xử lý vật tư tiêu hao theo FIFO
-        if (dto.getMaterials() != null && !dto.getMaterials().isEmpty()) {
-            for (MaterialUsageDTO usage : dto.getMaterials()) {
-                handleMaterialUsage(usage, savedDailyLog);
+        // 6. Xử lý chi tiết vật tư tiêu hao (dùng inventoryBatchId)
+        if (dto.getDetails() != null && !dto.getDetails().isEmpty()) {
+            for (DailyLogDetailCreateDTO detail : dto.getDetails()) {
+                handleMaterialUsage(detail, savedDailyLog);
             }
         }
     }
 
-    private void handleMaterialUsage(MaterialUsageDTO usage, DailyLog savedDailyLog) {
-        double quantityToUse = usage.getQuantityUsed();
+    private void handleMaterialUsage(DailyLogDetailCreateDTO detail, DailyLog savedDailyLog) {
+        double quantityToUse = detail.getQuantityUsed();
         if (quantityToUse <= 0)
             return;
 
-        // Lấy các lô hàng còn tồn kho của vật tư này, sắp xếp theo hạn dùng (FIFO)
-        List<InventoryBatch> batches = inventoryBatchRepository
-                .findByMaterialIdAndQuantityRemainingGreaterThanOrderByExpiryDateAsc(usage.getMaterialId(), 0.0);
+        // Tìm lô hàng cụ thể bằng inventoryBatchId
+        InventoryBatch batch = inventoryBatchRepository.findById(detail.getInventoryBatchId())
+                .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND,
+                        "Inventory batch not found with ID: " + detail.getInventoryBatchId()));
 
-        double remainingNeed = quantityToUse;
-
-        for (InventoryBatch batch : batches) {
-            if (remainingNeed <= 0)
-                break;
-
-            double availableInBatch = batch.getQuantityRemaining();
-            double quantityFromThisBatch;
-
-            if (remainingNeed <= availableInBatch) {
-                // Lô này đủ
-                quantityFromThisBatch = remainingNeed;
-                batch.setQuantityRemaining(availableInBatch - remainingNeed);
-                remainingNeed = 0;
-            } else {
-                // Lô này không đủ, dùng hết và tiếp tục lô khác
-                quantityFromThisBatch = availableInBatch;
-                batch.setQuantityRemaining(0.0);
-                remainingNeed -= availableInBatch;
-            }
-
-            // Cập nhật lô hàng
-            inventoryBatchRepository.save(batch);
-
-            // Tạo DailyLogDetail
-            DailyLogDetail detail = DailyLogDetail.builder()
-                    .dailyLog(savedDailyLog)
-                    .inventoryBatch(batch)
-                    .quantityUsed(quantityFromThisBatch)
-                    .build();
-            dailyLogDetailRepository.save(detail);
-
-            if (remainingNeed == 0) {
-                break;
-            }
-        }
-
-        // Nếu sau khi xử lý tất cả các lô mà vẫn còn nhu cầu
-        if (remainingNeed > 0) {
+        // Kiểm tra số lượng tồn kho
+        if (batch.getQuantityRemaining() < quantityToUse) {
             throw new CustomException(HttpStatus.BAD_REQUEST,
-                    String.format("Not enough stock for material ID: %d. Required: %.2f, but only %.2f was available.",
-                            usage.getMaterialId(), usage.getQuantityUsed(), usage.getQuantityUsed() - remainingNeed));
+                    String.format("Not enough stock in batch %s. Required: %.2f, Available: %.2f",
+                            batch.getBatchCode(), quantityToUse, batch.getQuantityRemaining()));
         }
+
+        // Cập nhật số lượng tồn kho
+        batch.setQuantityRemaining(batch.getQuantityRemaining() - quantityToUse);
+        inventoryBatchRepository.save(batch);
+
+        // Tạo DailyLogDetail
+        DailyLogDetail logDetail = DailyLogDetail.builder()
+                .dailyLog(savedDailyLog)
+                .inventoryBatch(batch)
+                .quantityUsed(quantityToUse)
+                .build();
+        dailyLogDetailRepository.save(logDetail);
     }
 
     private User getCurrentUser() {

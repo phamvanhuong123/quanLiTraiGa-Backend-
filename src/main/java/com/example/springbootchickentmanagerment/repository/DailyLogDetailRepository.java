@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface DailyLogDetailRepository extends JpaRepository<DailyLogDetail, Long> {
+    void deleteAllByInventoryBatchId(Long id);
 }

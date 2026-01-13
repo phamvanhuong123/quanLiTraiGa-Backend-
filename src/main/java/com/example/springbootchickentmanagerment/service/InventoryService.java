@@ -39,6 +39,8 @@ public class InventoryService {
 
         @Autowired
         private UserRepository userRepository;
+        @Autowired
+        private  DailyLogDetailRepository dailyLogDetailRepository;
 
         //Lấy danh sách thong tin nhập kho
         public List<InventoryBatchDTO> getAll(){
@@ -47,11 +49,16 @@ public class InventoryService {
                     .collect(Collectors.toList());
         }
         //Xoa danh sach
+        @Transactional
         public void deleteInventory(Long id){
-            boolean existInventory = inventoryBatchRepository.existsById(id);
-            if(!existInventory){
-                throw new CustomException(HttpStatus.NOT_FOUND, "Không tìm thấy lô hàng");
+            InventoryBatch existInventory = inventoryBatchRepository.findById(id)
+                    .orElseThrow(()-> new CustomException(HttpStatus.NOT_FOUND, "Không tìm thấy lô hàng"));
+
+            if(existInventory.getQuantityRemaining() > 0){
+                throw new CustomException(HttpStatus.BAD_REQUEST,"So luong vat tu van con.Không được xoá");
             }
+
+            dailyLogDetailRepository.deleteAllByInventoryBatchId(id);
             inventoryBatchRepository.deleteById(id);
         }
 

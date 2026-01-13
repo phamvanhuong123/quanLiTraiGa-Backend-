@@ -23,6 +23,8 @@ public class CoopDTO {
     @Min(value = 1, message = "Sức chứa phải lớn hơn 0")
     private Integer capacity;
 
+    private Integer currentQuantity;
+
     @NotNull(message = "Trạng thái không được để trống")
     private CoopStatus status;
 

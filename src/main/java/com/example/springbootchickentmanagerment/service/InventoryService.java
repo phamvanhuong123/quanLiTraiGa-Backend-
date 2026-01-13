@@ -40,6 +40,14 @@ public class InventoryService {
         @Autowired
         private UserRepository userRepository;
 
+        //Lấy danh sách thong tin nhập kho
+        public List<InventoryBatchDTO> getAll(){
+            return inventoryBatchRepository.findAll().stream()
+                    .map(this::mapToDTO)
+                    .collect(Collectors.toList());
+        }
+
+
         @Transactional
         public void importMaterial(ImportMaterialDTO dto) {
                 // 1. Get Current User từ Security Context
@@ -52,7 +60,7 @@ public class InventoryService {
                 String subject = authentication.getName();
                 System.out.println("Authentication subject: " + subject);
 
-                // Thử tìm user bằng email trước (vì trong JWT subject là email)
+
                 User currentUser = userRepository.findByEmail(subject)
                                 .orElseGet(() -> {
                                         // Nếu không tìm thấy bằng email, thử tìm bằng username
@@ -74,8 +82,10 @@ public class InventoryService {
                 }
 
                 // 4. Tạo mã lô
-                String timestamp = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-                String batchCode = "MAT-" + material.getId() + "-" + timestamp + "-" + System.currentTimeMillis();
+//            String timestamp = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+            String timestamp = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+//            String batchCode = "MAT-" + material.getId() + "-" + timestamp + "-" + System.currentTimeMillis();
+            String batchCode = "MAT/" + material.getId() + "-" + timestamp;
 
                 // 5. Tạo Inventory Batch
                 InventoryBatch batch = InventoryBatch.builder()
@@ -108,6 +118,20 @@ public class InventoryService {
                 transactionRepository.save(transaction);
         }
 
+        public InventoryBatchDTO updateInventory(Long Id, InventoryBatchDTO inventoryBatchDTO){
+            InventoryBatch existBatch = inventoryBatchRepository.findById(Id).
+                    orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "Không tìm thấy lô hàng"));
+
+            if(inventoryBatchDTO.getExpiryDate() == null || inventoryBatchDTO.getQuantityImported() == null ||inventoryBatchDTO.getPricePerUnit() == null ){
+                throw  new CustomException(HttpStatus.BAD_REQUEST,"Dữ liệu nhập còn thiếu");
+            }
+
+            existBatch.setExpiryDate(inventoryBatchDTO.getExpiryDate());
+            existBatch.setQuantityImported(inventoryBatchDTO.getQuantityImported());
+            existBatch.setPricePerUnit(inventoryBatchDTO.getPricePerUnit());
+            InventoryBatch batch = inventoryBatchRepository.save(existBatch);
+            return mapToDTO(batch);
+        }
         public List<InventoryBatchDTO> getExpiringBatches() {
                 LocalDate thresholdDate = LocalDate.now().plusDays(7);
                 List<InventoryBatch> batches = inventoryBatchRepository.findExpiringBatches(thresholdDate);
@@ -159,9 +183,13 @@ public class InventoryService {
         private InventoryBatchDTO mapToDTO(InventoryBatch batch) {
                 return InventoryBatchDTO.builder()
                                 .id(batch.getId())
+                                .materialId(batch.getMaterial().getId())
+                                .supplierId(batch.getSupplier().getId())
                                 .materialName(batch.getMaterial().getName())
+                                .supplierName(batch.getSupplier().getName())
                                 .batchCode(batch.getBatchCode())
                                 .quantityRemaining(batch.getQuantityRemaining())
+                                .quantityImported(batch.getQuantityImported())
                                 .expiryDate(batch.getExpiryDate())
                                 .importDate(batch.getImportDate())
                                 .pricePerUnit(batch.getPricePerUnit())

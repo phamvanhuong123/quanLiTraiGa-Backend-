@@ -6,6 +6,7 @@ import com.example.springbootchickentmanagerment.dto.inventory.ImportMaterialDTO
 import com.example.springbootchickentmanagerment.dto.inventory.InventoryBatchDTO;
 import com.example.springbootchickentmanagerment.dto.inventory.MaterialStockDTO;
 import com.example.springbootchickentmanagerment.service.InventoryService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,12 +21,36 @@ public class InventoryController {
     @Autowired
     private InventoryService inventoryService;
 
+    @GetMapping
+    public ResponseEntity<ApiResponse<List<InventoryBatchDTO>>> getAllInventoryBatches(){
+        List<InventoryBatchDTO> inventoryBatchDTOList = inventoryService.getAll();
+        ApiResponse<List<InventoryBatchDTO>> response = ApiResponse.<List<InventoryBatchDTO>>builder()
+                .statusCode(HttpStatus.OK.value())
+                .message("Lấy danh sách thành công")
+                .data(inventoryBatchDTOList)
+                .build();
+        return ResponseEntity.ok(response);
+
+    }
+    @PutMapping("{id}")
+    public ResponseEntity<ApiResponse<InventoryBatchDTO>> updateInventory(@PathVariable Long id, @RequestBody @Valid InventoryBatchDTO inventoryBatchDTO){
+        InventoryBatchDTO batchDTO = inventoryService.updateInventory(id, inventoryBatchDTO);
+        ApiResponse<InventoryBatchDTO> response = ApiResponse.<InventoryBatchDTO>builder()
+                .statusCode(HttpStatus.OK.value())
+                .message("Cập nhật thành công")
+                .data(batchDTO)
+                .build();
+
+        return ResponseEntity.ok(response);
+    }
+
+
     @PostMapping("/import")
     public ResponseEntity<ApiResponse<Void>> importMaterial(@RequestBody ImportMaterialDTO dto) {
         inventoryService.importMaterial(dto);
         ApiResponse<Void> response = ApiResponse.<Void>builder()
                 .statusCode(HttpStatus.CREATED.value())
-                .message("Material imported successfully")
+                .message("Vật tư đã được nhập vào kho thành công")
                 .build();
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }

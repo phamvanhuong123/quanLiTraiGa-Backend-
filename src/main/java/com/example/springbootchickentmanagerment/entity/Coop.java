@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Entity
 @Table(name = "coops")
-@EntityListeners(AuditingEntityListener.class) // Add this listener
+@EntityListeners(AuditingEntityListener.class)
 public class Coop {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,6 +29,9 @@ public class Coop {
 
     @Column(name = "capacity")
     private Integer capacity;
+
+    @Column(name = "current_quantity", columnDefinition = "integer default 0")
+    private Integer currentChickenQuantity;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 20)

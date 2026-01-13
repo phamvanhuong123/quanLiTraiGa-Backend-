@@ -13,6 +13,7 @@ import com.example.springbootchickentmanagerment.dto.breed.BreedDTO;
 import com.example.springbootchickentmanagerment.entity.Breed;
 import com.example.springbootchickentmanagerment.exception.CustomException;
 import com.example.springbootchickentmanagerment.repository.BreedRepository;
+import com.example.springbootchickentmanagerment.repository.FlockRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -26,6 +27,8 @@ public class BreedService {
 
     @Autowired
     private BreedRepository breedRepository;
+    @Autowired
+    private FlockRepository flockRepository;
 
     public BreedDTO createBreed(BreedDTO breedDTO) {
         Breed breed = mapToEntity(breedDTO);
@@ -60,6 +63,9 @@ public class BreedService {
     public void deleteBreed(Long id) {
         if (!breedRepository.existsById(id)) {
             throw new CustomException(HttpStatus.NOT_FOUND, "Không tìm thấy giống gà với id: " + id);
+        }
+        if (flockRepository.existsFlockByBreedId(id)) {
+            throw new CustomException(HttpStatus.NOT_FOUND, "Giống gà đã được dùng");
         }
         breedRepository.deleteById(id);
     }

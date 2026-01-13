@@ -73,17 +73,17 @@ public class AuthService {
                     new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
 
             User user = userRepository.findByEmail(loginRequest.getEmail())
-                    .orElseThrow(() -> new CustomException(HttpStatus.UNAUTHORIZED, "Invalid email or password"));
+                    .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "Tài khoản hoặc mật khẩu không hợp lệ"));
 
             if (user.getStatus() != UserStatus.ACTIVE) {
-                throw new CustomException(HttpStatus.FORBIDDEN, "Account is not activated. Please check your email for verification code.");
+                throw new CustomException(HttpStatus.FORBIDDEN, "Tài khoảng chưa được kích hoạt.Vui lòng kiểm tra code tại email");
             }
 
-            // Corrected: Pass the whole user object to generate a token with full claims
+
             return jwtUtils.generateToken(user);
 
         } catch (AuthenticationException e) {
-            throw new CustomException(HttpStatus.UNAUTHORIZED, "Invalid email or password");
+            throw new CustomException(HttpStatus.BAD_REQUEST, "Tài khoản hoặc mật khẩu không hợp lệ");
         }
     }
 

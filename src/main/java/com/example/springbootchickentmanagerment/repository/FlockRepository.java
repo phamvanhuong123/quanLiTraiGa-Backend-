@@ -10,4 +10,8 @@ import org.springframework.stereotype.Repository;
 public interface FlockRepository extends JpaRepository<Flock, Long> {
     @Query("SELECT SUM(f.currentQuantity) FROM Flock f WHERE f.status = :status")
     Long sumCurrentQuantityByStatus(FlockStatus status);
+
+    boolean existsFlockBySupplierId(Long id);
+    boolean existsFlockByBreedId(Long id);
+    boolean existsFlockByCoopId(Long id);
 }

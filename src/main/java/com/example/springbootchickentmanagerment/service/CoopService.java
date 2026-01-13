@@ -14,6 +14,7 @@ import com.example.springbootchickentmanagerment.entity.Coop;
 import com.example.springbootchickentmanagerment.enums.CoopStatus;
 import com.example.springbootchickentmanagerment.exception.CustomException;
 import com.example.springbootchickentmanagerment.repository.CoopRepository;
+import com.example.springbootchickentmanagerment.repository.FlockRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
@@ -27,6 +28,8 @@ public class CoopService {
 
     @Autowired
     private CoopRepository coopRepository;
+    @Autowired
+    private FlockRepository flockRepository;
 
     public CoopDTO createCoop(CoopDTO coopDTO) {
         Coop coop = mapToEntity(coopDTO);
@@ -94,7 +97,10 @@ public class CoopService {
         if (coop.getStatus() != com.example.springbootchickentmanagerment.enums.CoopStatus.EMPTY) {
             throw new CustomException(HttpStatus.BAD_REQUEST, "Không thể xóa chuồng đang có gà hoặc chưa được dọn dẹp.");
         }
-
+        //Kiểm tra xem có đàn gà nào không
+        if(flockRepository.existsFlockByCoopId(id)){
+            throw new CustomException(HttpStatus.BAD_REQUEST,"Có đàn gà đã tồn tại trong chuồng");
+        }
         coopRepository.deleteById(id);
     }
 

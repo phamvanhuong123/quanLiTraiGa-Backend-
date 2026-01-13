@@ -22,7 +22,7 @@ public class JwtUtils {
     @Value("${jwt.secret}")
     private String secret;
 
-    private static final long EXPIRATION_TIME = 86400000; // 1 day
+    private static final long EXPIRATION_TIME = 3 * 60 * 60 * 1000; // 3 hour
 
     // Overloaded method to accept a User object
     public String generateToken(User user) {

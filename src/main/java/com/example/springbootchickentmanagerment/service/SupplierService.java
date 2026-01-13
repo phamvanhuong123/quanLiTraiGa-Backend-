@@ -5,6 +5,7 @@ import com.example.springbootchickentmanagerment.dto.supplier.SupplierDTO;
 import com.example.springbootchickentmanagerment.entity.Material;
 import com.example.springbootchickentmanagerment.entity.Supplier;
 import com.example.springbootchickentmanagerment.exception.CustomException;
+import com.example.springbootchickentmanagerment.repository.FlockRepository;
 import com.example.springbootchickentmanagerment.repository.SupplierRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -19,7 +20,8 @@ import java.util.stream.Collectors;
 public class SupplierService {
     @Autowired
     private SupplierRepository supplierRepository;
-
+    @Autowired
+    private FlockRepository flockRepository;
     // Lấy danh sach nha cung cap
     public List<SupplierDTO> getAllSupplier(){
         return supplierRepository.findAll(Sort.by(Sort.Direction.DESC, "createdAt"))
@@ -56,6 +58,9 @@ public class SupplierService {
     public void deleteSupplier(Long id){
         if(!supplierRepository.existsById(id)){
             throw new CustomException(HttpStatus.NOT_FOUND,"Không tìm thấy nhà cung cấp");
+        }
+        if (flockRepository.existsFlockBySupplierId(id)) {
+            throw new CustomException(HttpStatus.BAD_REQUEST, "Thất bại nhà cung cấp đã được dùng");
         }
         supplierRepository.deleteById(id);
     }

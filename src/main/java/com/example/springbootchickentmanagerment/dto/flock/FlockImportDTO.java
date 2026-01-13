@@ -31,6 +31,6 @@ public class FlockImportDTO {
     @Min(value = 0, message = "Giá phải lớn hơn hoặc bằng 0")
     private BigDecimal pricePerChick;
     
-    @NotNull(message = "Ngày nhập không được để trống")
-    private LocalDate importDate;
+    //@NotNull(message = "Ngày nhập không được để trống")
+    //private LocalDate importDate;
 }

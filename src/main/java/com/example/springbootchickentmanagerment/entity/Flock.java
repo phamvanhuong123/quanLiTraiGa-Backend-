@@ -23,6 +23,8 @@ public class Flock {
 
     @Column(name = "name", nullable = false, length = 100)
     private String name;
+    @Column(name = "notes", columnDefinition = "TEXT")
+    private String notes;
 
     @Column(name = "batch_code", length = 50)
     private String batchCode;
@@ -64,4 +66,6 @@ public class Flock {
 
     @OneToMany(mappedBy = "flock", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Transaction> transactions;
+
+
 }

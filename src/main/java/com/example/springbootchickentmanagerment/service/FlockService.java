@@ -16,6 +16,9 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.core.Authentication;
+import com.example.springbootchickentmanagerment.dto.flock.FlockDTO;
+import com.example.springbootchickentmanagerment.dto.flock.UpdateFlockDTO;
+
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -60,6 +63,7 @@ public class FlockService {
         @Transactional
         public void importFlock(FlockImportDTO dto) {
                 User currentUser = getCurrentUser();
+                LocalDate importDate = LocalDate.now();
 
                 // 1. Kiểm tra chuồng
                 Coop coop = coopRepository.findById(dto.getCoopId())
@@ -91,7 +95,7 @@ public class FlockService {
                                 .coop(coop)
                                 .supplier(supplier)
                                 .batchCode(generateBatchCode())
-                                .importDate(dto.getImportDate())
+                                .importDate(importDate)
                                 .initialQuantity(dto.getQuantity())
                                 .currentQuantity(dto.getQuantity())
                                 .status(FlockStatus.RAISING)
@@ -107,7 +111,7 @@ public class FlockService {
                 // 6. Tạo giao dịch chi phí mua giống
                 BigDecimal totalCost = dto.getPricePerChick().multiply(BigDecimal.valueOf(dto.getQuantity()));
                 Transaction transaction = Transaction.builder()
-                                .transactionDate(dto.getImportDate())
+                                .transactionDate(importDate)
                                 .type(TransactionType.EXPENSE)
                                 .category("Mua con giống")
                                 .amount(totalCost)
@@ -119,7 +123,7 @@ public class FlockService {
                 transactionRepository.save(transaction);
 
                 // 7. Tự động tạo lịch trình
-                createInitialSchedules(savedFlock, dto.getImportDate());
+                createInitialSchedules(savedFlock, importDate);
 
         }
 
@@ -301,4 +305,54 @@ public class FlockService {
 
                 return currentUser;
         }
+        @Transactional
+        public void deleteFlock(Long id) {
+                Flock flock = flockRepository.findById(id)
+                        .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "Không tìm thấy đàn"));
+
+                if (flock.getStatus() != FlockStatus.RAISING) {
+                        throw new CustomException(HttpStatus.BAD_REQUEST, "Chỉ được xoá đàn đang nuôi");
+                }
+
+                Coop coop = flock.getCoop();
+                coop.setStatus(CoopStatus.EMPTY);
+                coopRepository.save(coop);
+
+                flockRepository.delete(flock);
+        }
+        @Transactional
+        public FlockDTO updateFlock(Long id, UpdateFlockDTO dto) {
+                Flock flock = flockRepository.findById(id)
+                        .orElseThrow(() ->
+                                new CustomException(HttpStatus.NOT_FOUND, "Không tìm thấy đàn")
+                        );
+
+                // Chỉ cho sửa đàn đang nuôi
+                if (flock.getStatus() != FlockStatus.RAISING) {
+                        throw new CustomException(
+                                HttpStatus.BAD_REQUEST,
+                                "Chỉ được sửa đàn đang nuôi"
+                        );
+                }
+
+                flock.setName(dto.getName());
+                flock.setNotes(dto.getNotes());
+
+                flockRepository.save(flock);
+
+                return FlockDTO.builder()
+                        .id(flock.getId())
+                        .name(flock.getName())
+                        .batchCode(flock.getBatchCode())
+                        .coopName(flock.getCoop() != null ? flock.getCoop().getName() : null)
+                        .breedName(flock.getBreed() != null ? flock.getBreed().getName() : null)
+                        .currentQuantity(flock.getCurrentQuantity())
+                        .status(flock.getStatus())
+                        .importDate(flock.getImportDate())
+                        .notes(flock.getNotes())
+                        .build();
+        }
+
+
+
 }

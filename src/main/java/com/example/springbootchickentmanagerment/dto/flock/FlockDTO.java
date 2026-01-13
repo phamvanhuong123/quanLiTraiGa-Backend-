@@ -14,7 +14,9 @@ public class FlockDTO {
     private String batchCode;
     private String coopName;
     private String breedName;
+    private Integer initialQuantity;
     private Integer currentQuantity;
     private FlockStatus status;
     private LocalDate importDate;
+    private String notes;
 }

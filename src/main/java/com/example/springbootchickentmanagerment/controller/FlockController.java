@@ -43,6 +43,7 @@ public class FlockController {
                                                 .batchCode(flock.getBatchCode())
                                                 .coopName(flock.getCoop() != null ? flock.getCoop().getName() : null)
                                                 .breedName(flock.getBreed() != null ? flock.getBreed().getName() : null)
+                                                .initialQuantity(flock.getInitialQuantity())
                                                 .currentQuantity(flock.getCurrentQuantity())
                                                 .status(flock.getStatus())
                                                 .importDate(flock.getImportDate())
@@ -225,4 +226,35 @@ public class FlockController {
                                 .build();
                 return ResponseEntity.ok(response);
         }
+// Xóa
+        @DeleteMapping("/{id}")
+        public ResponseEntity<ApiResponse<Void>> deleteFlock(@PathVariable Long id) {
+                flockService.deleteFlock(id);
+
+                ApiResponse<Void> response = ApiResponse.<Void>builder()
+                .statusCode(HttpStatus.OK.value())
+                .message("Xoá đàn thành công")
+                .build();
+
+                return ResponseEntity.ok(response);
+        }
+//Update
+        @PutMapping("/{id}")
+        @Operation(summary = "Update flock")
+        public ResponseEntity<ApiResponse<FlockDTO>> updateFlock(
+                @PathVariable Long id,
+                @RequestBody UpdateFlockDTO dto
+        ) {
+                FlockDTO updatedFlock = flockService.updateFlock(id, dto);
+
+                ApiResponse<FlockDTO> response = ApiResponse.<FlockDTO>builder()
+                        .statusCode(HttpStatus.OK.value())
+                        .message("Cập nhật đàn thành công")
+                        .data(updatedFlock)
+                        .build();
+
+                return ResponseEntity.ok(response);
+        }
+
+
 }

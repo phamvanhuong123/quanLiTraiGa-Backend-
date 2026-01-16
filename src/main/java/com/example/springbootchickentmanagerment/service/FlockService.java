@@ -9,6 +9,7 @@ import com.example.springbootchickentmanagerment.enums.ScheduleStatus;
 import com.example.springbootchickentmanagerment.enums.TransactionType;
 import com.example.springbootchickentmanagerment.exception.CustomException;
 import com.example.springbootchickentmanagerment.repository.*;
+import com.example.springbootchickentmanagerment.utils.UtilDays;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -25,6 +26,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class FlockService {
@@ -69,19 +71,33 @@ public class FlockService {
                 Coop coop = coopRepository.findById(dto.getCoopId())
                                 .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "Chuồng không tồn tại"));
 
-                if (coop.getStatus() != CoopStatus.EMPTY) {
-                        throw new CustomException(HttpStatus.BAD_REQUEST, "Chuồng đang có gà hoặc chưa được dọn dẹp");
+                if (coop.getStatus() == CoopStatus.CLEANING) {
+                        throw new CustomException(HttpStatus.BAD_REQUEST, "Chuồng đang bảo trì");
                 }
 
-                if (dto.getQuantity() > coop.getCapacity()) {
+
+                if (dto.getQuantity() > coop.getCapacity() - coop.getCurrentQuantity()) {
                         throw new CustomException(HttpStatus.BAD_REQUEST,
                                         String.format("Số lượng gà (%d) vượt quá sức chứa của chuồng (%d)",
                                                         dto.getQuantity(), coop.getCapacity()));
                 }
 
+
                 // 2. Kiểm tra giống
                 Breed breed = breedRepository.findById(dto.getBreedId())
                                 .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "Giống gà không tồn tại"));
+
+
+                //Kiểm tra xem trong chuồng có loại giống khác hay không
+                if(!checkDifferentBreed(dto.getCoopId(), dto.getBreedId())){
+                    throw new CustomException(HttpStatus.BAD_REQUEST,"Đã có giống khác trong chuồng");
+                }
+
+                //Kiểm tra xem có đàn gà nhập có chênh lệch ngày tuổi hay không
+                LocalDate earliest = flockRepository.findEarliestStartDateByCoopId(dto.getCoopId());
+                if(earliest != null && UtilDays.getDaysBetween(earliest, importDate) > 7){
+                    throw new CustomException(HttpStatus.BAD_REQUEST,"Độ tuổi đàn gà chênh lệch quá 7 ngày");
+                }
 
                 // 3. Kiểm tra nhà cung cấp
                 Supplier supplier = supplierRepository.findById(dto.getSupplierId())
@@ -106,6 +122,7 @@ public class FlockService {
 
                 // 5. Cập nhật trạng thái chuồng
                 coop.setStatus(CoopStatus.ACTIVE);
+                coop.setCurrentQuantity(flock.getCurrentQuantity());
                 coopRepository.save(coop);
 
                 // 6. Tạo giao dịch chi phí mua giống
@@ -124,7 +141,6 @@ public class FlockService {
 
                 // 7. Tự động tạo lịch trình
                 createInitialSchedules(savedFlock, importDate);
-
         }
 
         @Transactional
@@ -151,6 +167,8 @@ public class FlockService {
                 // Nếu bán hết thì đóng đàn
                 if (newQuantity == 0 || dto.isCloseFlock()) {
                         flock.setStatus(FlockStatus.SOLD);
+                        closeFlock(flock.getId());
+
                 }
 
                 flockRepository.save(flock);
@@ -189,6 +207,7 @@ public class FlockService {
                 // 2. Giải phóng chuồng
                 Coop coop = flock.getCoop();
                 coop.setStatus(CoopStatus.EMPTY);
+                coop.setCurrentQuantity(coop.getCurrentQuantity() - flock.getCurrentQuantity());
                 coopRepository.save(coop);
         }
 
@@ -310,12 +329,13 @@ public class FlockService {
                 Flock flock = flockRepository.findById(id)
                         .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "Không tìm thấy đàn"));
 
-                if (flock.getStatus() != FlockStatus.RAISING) {
-                        throw new CustomException(HttpStatus.BAD_REQUEST, "Chỉ được xoá đàn đang nuôi");
+                if (flock.getStatus() != FlockStatus.SOLD) {
+                        throw new CustomException(HttpStatus.BAD_REQUEST, "Chỉ được xoá đàn đã bán");
                 }
 
                 Coop coop = flock.getCoop();
                 coop.setStatus(CoopStatus.EMPTY);
+                coop.setCurrentQuantity(coop.getCurrentQuantity() - flock.getInitialQuantity());
                 coopRepository.save(coop);
 
                 flockRepository.delete(flock);
@@ -352,6 +372,16 @@ public class FlockService {
                         .notes(flock.getNotes())
                         .build();
         }
+    private boolean checkDifferentBreed(Long coopId,Long breedId) {
+        List<Flock> flocks = flockRepository.listFlockByCoopId(coopId);
+        for (Flock flock : flocks) {
+            if(!flock.getBreed().getId().equals(breedId)){
+                return false;
+            }
+        }
+        return true;
+    }
+
 
 
 

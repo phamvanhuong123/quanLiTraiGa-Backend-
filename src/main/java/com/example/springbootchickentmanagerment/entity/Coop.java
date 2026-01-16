@@ -31,7 +31,7 @@ public class Coop {
     private Integer capacity;
 
     @Column(name = "current_quantity", columnDefinition = "integer default 0")
-    private Integer currentChickenQuantity;
+    private Integer currentQuantity;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 20)

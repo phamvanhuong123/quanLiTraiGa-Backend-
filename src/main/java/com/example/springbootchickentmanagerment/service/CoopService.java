@@ -108,6 +108,7 @@ public class CoopService {
         return Coop.builder()
                 .name(dto.getName())
                 .capacity(dto.getCapacity())
+                .currentQuantity(0)
                 .status(dto.getStatus())
                 .build();
     }
@@ -118,6 +119,7 @@ public class CoopService {
                 .name(entity.getName())
                 .capacity(entity.getCapacity())
                 .status(entity.getStatus())
+                .currentQuantity(entity.getCurrentQuantity())
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
                 .build();

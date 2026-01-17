@@ -22,16 +22,16 @@ public class JwtUtils {
     @Value("${jwt.secret}")
     private String secret;
 
-    private static final long EXPIRATION_TIME = 3 * 60 * 60 * 1000; // 3 hour
+    private static final long EXPIRATION_TIME = 3 * 60 * 60 * 1000;
 
-    // Overloaded method to accept a User object
+
     public String generateToken(User user) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("id", user.getId());
         claims.put("fullName", user.getFullName());
         claims.put("username", user.getUsername());
-        claims.put("role", user.getRole().name()); // Convert enum to string
-        // Add any other non-sensitive fields you need
+        claims.put("role", user.getRole().name());
+
 
         return createToken(claims, user.getEmail()); // Use email as the subject
     }

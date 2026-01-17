@@ -44,10 +44,10 @@ public class AuthService {
     @Transactional
     public void register(RegisterRequest registerRequest) {
         if (userRepository.existsByUsername(registerRequest.getUsername())) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, "Error: Username is already taken!");
+            throw new CustomException(HttpStatus.BAD_REQUEST, "Tên đã được xử dụng");
         }
         if (userRepository.existsByEmail(registerRequest.getEmail())) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, "Error: Email is already in use!");
+            throw new CustomException(HttpStatus.BAD_REQUEST, "Email đã tồn taại");
         }
 
         User user = new User();
@@ -90,18 +90,18 @@ public class AuthService {
     @Transactional
     public void verifyOtp(OtpVerificationRequest otpRequest) {
         User user = userRepository.findByEmail(otpRequest.getEmail())
-                .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "User not found with this email."));
+                .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "Không Tìm thấy email."));
 
         VerificationToken verificationToken = tokenRepository.findByUser(user)
-                .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "Invalid or expired OTP. Please request a new one."));
+                .orElseThrow(() -> new CustomException(HttpStatus.BAD_REQUEST, "Mã OTP không hợp lệ.Vui lòng gửi lại"));
 
         if (verificationToken.getExpiryDate().isBefore(Instant.now())) {
             tokenRepository.delete(verificationToken);
-            throw new CustomException(HttpStatus.BAD_REQUEST, "OTP has expired. Please request a new one.");
+            throw new CustomException(HttpStatus.BAD_REQUEST, "Mã OPT đã hết hạn,vui lòng gửi lai");
         }
 
         if (!verificationToken.getToken().equals(otpRequest.getCode())) {
-            throw new CustomException(HttpStatus.BAD_REQUEST, "The OTP entered is incorrect.");
+            throw new CustomException(HttpStatus.BAD_REQUEST, "Mã OTP của bạn không dung.");
         }
 
         user.setStatus(UserStatus.ACTIVE);

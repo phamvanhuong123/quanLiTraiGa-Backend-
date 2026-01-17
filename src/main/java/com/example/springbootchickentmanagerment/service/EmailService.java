@@ -23,9 +23,9 @@ public class EmailService {
             message.setFrom(fromEmail);
             message.setTo(to);
             message.setSubject("Your One-Time Password (OTP) for Account Verification");
-            message.setText("Thank you for registering. \n\n"
-                    + "Your One-Time Password is: " + otp + "\n\n"
-                    + "This code will expire in 10 minutes. Please do not share it with anyone.");
+            message.setText("Cảm ơn đã đăng kí. \n\n"
+                    + "Mã OTP của bạn là: " + otp + "\n\n"
+                    + "Mã xác thực này có thời han là 10 phút. Vui lòng không gửi cho bất kì ai");
             mailSender.send(message);
         } catch (Exception e) {
             throw new CustomException(HttpStatus.INTERNAL_SERVER_ERROR, "Error while sending OTP email: " + e.getMessage());

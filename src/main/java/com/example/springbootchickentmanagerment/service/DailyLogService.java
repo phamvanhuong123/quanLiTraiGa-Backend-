@@ -35,6 +35,9 @@ public class DailyLogService {
     @Autowired
     private MaterialRepository materialRepository;
 
+    @Autowired
+    private  CoopRepository coopRepository;
+
     @Transactional
     public void createDailyLog(DailyLogCreateDTO dto) {
         // 1. Lấy user hiện tại
@@ -60,7 +63,11 @@ public class DailyLogService {
 
         // 4. Cập nhật số lượng đàn
         flock.setCurrentQuantity(newQuantity);
-        flockRepository.save(flock);
+
+        // Cật nhật lại số lượng trong chuồng
+        Coop coop = coopRepository.findById(flock.getCoop().getId())
+                .orElseThrow(() -> new CustomException(HttpStatus.NOT_FOUND, "Chuồng không tồn tại"));;
+        coop.setCurrentQuantity(coop.getCurrentQuantity() - totalReduction);
 
         // 5. Tạo DailyLog
         DailyLog dailyLog = DailyLog.builder()

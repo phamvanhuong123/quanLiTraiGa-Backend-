@@ -29,4 +29,5 @@ public interface FlockRepository extends JpaRepository<Flock, Long> {
     """)
     LocalDate findEarliestStartDateByCoopId(@Param("coopId") Long coopId);
 
+    List<Flock> findAllByCoopId(Long coopId);
 }

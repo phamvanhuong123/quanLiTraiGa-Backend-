@@ -61,7 +61,9 @@ public class FlockService {
         public List<Flock> getAllFlocks() {
                 return flockRepository.findAll();
         }
-
+        public List<Flock> getFlocksByCoopId(Long idCoop){
+                return flockRepository.findAllByCoopId(idCoop);
+        }
         @Transactional
         public void importFlock(FlockImportDTO dto) {
                 User currentUser = getCurrentUser();
@@ -122,7 +124,7 @@ public class FlockService {
 
                 // 5. Cập nhật trạng thái chuồng
                 coop.setStatus(CoopStatus.ACTIVE);
-                coop.setCurrentQuantity(flock.getCurrentQuantity());
+                coop.setCurrentQuantity(coop.getCurrentQuantity() + flock.getCurrentQuantity());
                 coopRepository.save(coop);
 
                 // 6. Tạo giao dịch chi phí mua giống
@@ -170,7 +172,8 @@ public class FlockService {
                         closeFlock(flock.getId());
 
                 }
-
+                Coop coop = coopRepository.findById(flock.getCoop().getId()).orElseThrow( ()->new CustomException(HttpStatus.NOT_FOUND, "Chuồng không tồn tại") );
+                coop.setCurrentQuantity(coop.getCurrentQuantity()-dto.getSoldQuantity());
                 flockRepository.save(flock);
 
                 // 2. Tạo giao dịch thu nhập

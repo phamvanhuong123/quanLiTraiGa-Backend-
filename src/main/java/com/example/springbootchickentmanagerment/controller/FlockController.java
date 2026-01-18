@@ -119,10 +119,10 @@ public class FlockController {
         @Operation(summary = "Get all transactions for a flock")
         public ResponseEntity<ApiResponse<FlockTransactionSummaryDTO>> getFlockTransactions(
                         @PathVariable Long flockId) {
-                // Lấy danh sách giao dịch
+
                 List<Transaction> transactions = flockService.getTransactionsByFlockId(flockId);
 
-                // Chuyển đổi sang DTO
+
                 List<FlockTransactionDTO> transactionDTOs = transactions.stream()
                                 .map(t -> FlockTransactionDTO.builder()
                                                 .id(t.getId())
@@ -238,7 +238,6 @@ public class FlockController {
 
                 return ResponseEntity.ok(response);
         }
-//Update
         @PutMapping("/{id}")
         @Operation(summary = "Update flock")
         public ResponseEntity<ApiResponse<FlockDTO>> updateFlock(
@@ -254,6 +253,33 @@ public class FlockController {
                         .build();
 
                 return ResponseEntity.ok(response);
+        }
+
+        //Lấy danh sách đàn gà theo chuồng
+        @GetMapping("/coops/{idCoop}")
+        public ResponseEntity<ApiResponse<List<FlockDTO>>> getFlocksByCoopId(@PathVariable Long idCoop) {
+            List<Flock> flocks = flockService.getFlocksByCoopId(idCoop);
+
+            List<FlockDTO> flockDTOs = flocks.stream()
+                    .map(flock -> FlockDTO.builder()
+                            .id(flock.getId())
+                            .name(flock.getName())
+                            .batchCode(flock.getBatchCode())
+                            .coopName(flock.getCoop() != null ? flock.getCoop().getName() : null)
+                            .breedName(flock.getBreed() != null ? flock.getBreed().getName() : null)
+                            .initialQuantity(flock.getInitialQuantity())
+                            .currentQuantity(flock.getCurrentQuantity())
+                            .status(flock.getStatus())
+                            .importDate(flock.getImportDate())
+                            .build())
+                    .collect(Collectors.toList());
+
+            ApiResponse<List<FlockDTO>> response = ApiResponse.<List<FlockDTO>>builder()
+                    .statusCode(HttpStatus.OK.value())
+                    .message("Flock list retrieved successfully")
+                    .data(flockDTOs)
+                    .build();
+            return ResponseEntity.ok(response);
         }
 
 

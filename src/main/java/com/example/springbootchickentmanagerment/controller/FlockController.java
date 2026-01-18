@@ -70,6 +70,8 @@ public class FlockController {
                                 .coopName(flock.getCoop() != null ? flock.getCoop().getName() : null)
                                 .breedName(flock.getBreed() != null ? flock.getBreed().getName() : null)
                                 .currentQuantity(flock.getCurrentQuantity())
+                                .initialQuantity(flock.getInitialQuantity())
+                                .supplierName(flock.getSupplier() != null ? flock.getSupplier().getName() : null)
                                 .status(flock.getStatus())
                                 .importDate(flock.getImportDate())
                                 .build();

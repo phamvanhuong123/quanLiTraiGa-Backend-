@@ -13,6 +13,7 @@ public class FlockDTO {
     private String name;
     private String batchCode;
     private String coopName;
+    private String supplierName;
     private String breedName;
     private Integer initialQuantity;
     private Integer currentQuantity;
